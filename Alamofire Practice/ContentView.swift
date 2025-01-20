@@ -96,7 +96,7 @@ extension ContentView {
     }
     
     private func paramterSimpleGetRequest() {
-        // Parameters = Args
+        // Parameters = Args = Request Object
         let parameters = ["category": "Movies", "genre": "Action"]
         AF.request("https://httpbin.org/get", parameters: parameters).response { dataResponse in
             debugPrint(dataResponse)
@@ -105,8 +105,10 @@ extension ContentView {
     
     private func headerSimpleGetRequest() {
         let headers: HTTPHeaders = [
-                    .authorization(username: "test@email.com", password: "testpassword"),
-                    .accept("application/json")
+            "style_id" : "120"
+            // OR
+//                    .authorization(username: "test@email.com", password: "testpassword"),
+//                    .accept("application/json")
                 ]
 
         let parameters = ["category": "Movies", "genre": "Action"]
@@ -152,8 +154,12 @@ extension ContentView {
     
     private func multiFormDataUpload() {
         AF.upload(multipartFormData: { multipartFormData in
+            // For parameters
             multipartFormData.append(Data("one".utf8), withName: "one")
             multipartFormData.append(Data("two".utf8), withName: "two")
+            multipartFormData.append("three".data(using: String.Encoding.utf8)!, withName: "three")
+            // Files such as image
+            multipartFormData.append(Data(), withName: "", fileName: "", mimeType: "")
         }, to: "https://httpbin.org/post")
             .response{ response in
                 debugPrint(response)
