@@ -39,16 +39,6 @@
 			path = "Alamofire Practice";
 			sourceTree = "<group>";
 		};
-		EEC727432D3EBE8D003735AD /* Alamofire PracticeTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Alamofire PracticeTests";
-			sourceTree = "<group>";
-		};
-		EEC7274D2D3EBE8D003735AD /* Alamofire PracticeUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Alamofire PracticeUITests";
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,8 +71,6 @@
 			isa = PBXGroup;
 			children = (
 				EEC727322D3EBE8B003735AD /* Alamofire Practice */,
-				EEC727432D3EBE8D003735AD /* Alamofire PracticeTests */,
-				EEC7274D2D3EBE8D003735AD /* Alamofire PracticeUITests */,
 				EEC727312D3EBE8A003735AD /* Products */,
 			);
 			sourceTree = "<group>";
@@ -136,9 +124,6 @@
 			dependencies = (
 				EEC727422D3EBE8D003735AD /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				EEC727432D3EBE8D003735AD /* Alamofire PracticeTests */,
-			);
 			name = "Alamofire PracticeTests";
 			packageProductDependencies = (
 			);
@@ -158,9 +143,6 @@
 			);
 			dependencies = (
 				EEC7274C2D3EBE8D003735AD /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				EEC7274D2D3EBE8D003735AD /* Alamofire PracticeUITests */,
 			);
 			name = "Alamofire PracticeUITests";
 			packageProductDependencies = (
