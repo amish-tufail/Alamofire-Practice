@@ -19,9 +19,12 @@ import SwiftUI
 /*
  
  AF.request -> header, parameter, encoder: JSONParameterEncoder & URLEncodedFormParameterEncoder
+ 
 - Headers that dont change such as: Bearer token should be added to Session: URLSessionConfiguration , so that they are auto added to every request made. Headers -> [HTTPHeader] -> Provided by Alamofire
  
      let headers: HTTPHeaders = ["Authorization": "Bearer VXNlcm5hbWU6UGFzc3dvcmQ="]
+     AF.request("https://httpbin.org/headers", headers: headers
+ For HTTP headers that do not change, it is recommended to set them on the URLSessionConfiguration so they are automatically applied to any URLSessionTask created by the underlying URLSession.
  
  - Alamofire treats every request as sucess so use validate to cater this: .validate(200..<300) or .validate()
  
