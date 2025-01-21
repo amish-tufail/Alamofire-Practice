@@ -18,15 +18,40 @@ import SwiftUI
 
 /*
  
- AF.request -> header, parameter, encoder
-- Headers that dont change such as: Bearer token should be added to Session: URLSessionConfiguration , so that they are auto added to every request made. Headers -> HTTPHeader -> Provided by Alamofire
- - Alamofire treats every request as sucess so use validate to cater this
+ AF.request -> header, parameter, encoder: JSONParameterEncoder & URLEncodedFormParameterEncoder
+- Headers that dont change such as: Bearer token should be added to Session: URLSessionConfiguration , so that they are auto added to every request made. Headers -> [HTTPHeader] -> Provided by Alamofire
+ 
+     let headers: HTTPHeaders = ["Authorization": "Bearer VXNlcm5hbWU6UGFzc3dvcmQ="]
+ 
+ - Alamofire treats every request as sucess so use validate to cater this: .validate(200..<300) or .validate()
+ 
  - You can authenticate user using custom header or use Alamofire URLCredential -> See Documentation
+ 
+     let user = "user"
+     let password = "password"
+
+     let credential = URLCredential(user: user, password: password, persistence: .forSession)
+
+     AF.request("https://httpbin.org/basic-auth/\(user)/\(password)")
+         .authenticate(with: credential)
+         .responseDecodable(of: DecodableType.self) { response in
+             debugPrint(response)
+         }
+ 
  AF.download
- - You can download content using AF.download: cancel, resume, progress -> See Documentation
+ - You can download content using AF.download: cancel, resume, progress, store to a destination -> See Documentation
  
  AF.upload
  - multiformdata means more than one data object then use this
+ 
+     AF.upload(multipartFormData: { multipartFormData in
+         multipartFormData.append(Data("one".utf8), withName: "one")
+         multipartFormData.append(Data("two".utf8), withName: "two")
+     }, to: "https://httpbin.org/post")
+         .responseDecodable(of: DecodableType.self) { response in
+             debugPrint(response)
+         }
+ 
  AF.streamRequest:  -> See Documentation
  - handle large downloads or real-time data streams from a server without loading everything into memory at once
  - SEE AT BOTTOM OF THIS FILE MORE EXPLANATION
@@ -60,18 +85,18 @@ struct Basic_Inter: View {
  
  
  
- AF.streamRequest("https://your-server.com/stream")
-     .responseStream { stream in
-         switch stream.event {
-         case .stream(let result):
-             switch result {
-             case .success(let data):
-                 print("New data received: \(data)")
+     AF.streamRequest("https://your-server.com/stream")
+         .responseStream { stream in
+             switch stream.event {
+             case .stream(let result):
+                 switch result {
+                 case .success(let data):
+                     print("New data received: \(data)")
+                 }
+             case .complete(let completion):
+                 print("Stream completed: \(completion)")
              }
-         case .complete(let completion):
-             print("Stream completed: \(completion)")
          }
-     }
 
  ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------
  
@@ -84,24 +109,24 @@ struct Basic_Inter: View {
  Alamofire provides a method called .asInputStream() to create an InputStream from a DataStreamRequest. You can then use this InputStream to read the data.
  
  
- let inputStream = AF.streamRequest("https://example.com/stream")
-     .asInputStream() // Convert the stream into an InputStream for manual reading.
+     let inputStream = AF.streamRequest("https://example.com/stream")
+         .asInputStream() // Convert the stream into an InputStream for manual reading.
 
- inputStream.open()
+     inputStream.open()
 
- // Read data from the InputStream as needed.
- var buffer = [UInt8](repeating: 0, count: 1024)
- while inputStream.hasBytesAvailable {
-     let bytesRead = inputStream.read(&buffer, maxLength: buffer.count)
-     if bytesRead > 0 {
-         let data = Data(buffer.prefix(bytesRead))
-         if let string = String(data: data, encoding: .utf8) {
-             print("Read data: \(string)")
+     // Read data from the InputStream as needed.
+     var buffer = [UInt8](repeating: 0, count: 1024)
+     while inputStream.hasBytesAvailable {
+         let bytesRead = inputStream.read(&buffer, maxLength: buffer.count)
+         if bytesRead > 0 {
+             let data = Data(buffer.prefix(bytesRead))
+             if let string = String(data: data, encoding: .utf8) {
+                 print("Read data: \(string)")
+             }
          }
      }
- }
 
- inputStream.close()
+     inputStream.close()
  
  
 
@@ -115,20 +140,20 @@ struct Basic_Inter: View {
  How it works: Alamofire handles everything for you. You simply get the data chunks in the closure and can print or use them directly.
  
  
- AF.streamRequest("https://example.com/stream")
-     .responseStream { stream in
-         switch stream.event {
-         case let .stream(result):
-             switch result {
-             case let .success(data):
-                 print("Received data: \(data)")  // Auto handles chunks for you
-             case let .failure(error):
-                 print("Error: \(error)")
+     AF.streamRequest("https://example.com/stream")
+         .responseStream { stream in
+             switch stream.event {
+             case let .stream(result):
+                 switch result {
+                 case let .success(data):
+                     print("Received data: \(data)")  // Auto handles chunks for you
+                 case let .failure(error):
+                     print("Error: \(error)")
+                 }
+             case let .complete(completion):
+                 print("Stream completed: \(completion)")
              }
-         case let .complete(completion):
-             print("Stream completed: \(completion)")
          }
-     }
 
  
  When to Use InputStream:
@@ -137,22 +162,22 @@ struct Basic_Inter: View {
  How it works: You need to manually handle reading, converting (e.g., bytes to strings), and processing the stream data in chunks.
 
  
- let inputStream = AF.streamRequest("https://example.com/stream")
-     .asInputStream()
+     let inputStream = AF.streamRequest("https://example.com/stream")
+         .asInputStream()
 
- inputStream.open()  // Open the stream for reading
+     inputStream.open()  // Open the stream for reading
 
- var buffer = [UInt8](repeating: 0, count: 256)  // Small buffer
+     var buffer = [UInt8](repeating: 0, count: 256)  // Small buffer
 
- while inputStream.hasBytesAvailable {
-     let bytesRead = inputStream.read(&buffer, maxLength: buffer.count)  // Read a chunk of data
-     if bytesRead > 0 {
-         if let string = String(bytes: buffer.prefix(bytesRead), encoding: .utf8) {
-             print("Received chunk: \(string)")  // Process the data manually
+     while inputStream.hasBytesAvailable {
+         let bytesRead = inputStream.read(&buffer, maxLength: buffer.count)  // Read a chunk of data
+         if bytesRead > 0 {
+             if let string = String(bytes: buffer.prefix(bytesRead), encoding: .utf8) {
+                 print("Received chunk: \(string)")  // Process the data manually
+             }
          }
      }
- }
 
- inputStream.close()  // Close when done
+     inputStream.close()  // Close when done
 
 */
