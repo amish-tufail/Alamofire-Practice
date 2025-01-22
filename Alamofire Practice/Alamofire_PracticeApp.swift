@@ -11,7 +11,7 @@ import SwiftUI
 struct Alamofire_PracticeApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            TestMockServer()
         }
     }
 }
